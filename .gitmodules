@@ -1,3 +1,6 @@
 [submodule "dependencies/JUCE"]
 	path = dependencies/JUCE
 	url = git@github.com:juce-framework/JUCE.git
+[submodule "dependencies/KDsDSPlib"]
+	path = dependencies/KDsDSPlib
+	url = git@github.com:KDsMoped/KDsDSPlib.git
