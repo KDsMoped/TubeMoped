@@ -37,6 +37,7 @@ namespace TubeMoped
 
     void Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
     {
+        clippingStageProcessor_ = std::make_unique<ClippingStageProcessor>();
     }
 
     void Processor::releaseResources()
@@ -58,7 +59,9 @@ namespace TubeMoped
 
     void Processor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& )
     {
+        clippingStageProcessor_->process(buffer);
 
+        buffer.applyGain(.2f);
     }
 
     bool Processor::hasEditor() const

@@ -2,6 +2,8 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include "ClippingStageProcessor.h"
+
 namespace TubeMoped
 {
     class Processor : public juce::AudioProcessor
@@ -33,6 +35,8 @@ namespace TubeMoped
 
     private:
         juce::AudioProcessorValueTreeState apvts_;
+
+        std::unique_ptr<ClippingStageProcessor> clippingStageProcessor_;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Processor)
     };
