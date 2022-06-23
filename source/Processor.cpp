@@ -38,9 +38,10 @@ namespace TubeMoped
 
     void Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
     {
-        clippingStageProcessor_ = std::make_unique<ClippingStageProcessor>(sampleRate);
+        clippingStageProcessor_ = std::make_unique<ClippingStageProcessor>(sampleRate, samplesPerBlock, getNumInputChannels());
 
         lowpass_.prepare(juce::dsp::ProcessSpec{sampleRate, static_cast<unsigned int>(samplesPerBlock), static_cast<unsigned int>(getNumInputChannels())});
+        lowpass_.setType(juce::dsp::FirstOrderTPTFilterType::lowpass);
     }
 
     void Processor::releaseResources()

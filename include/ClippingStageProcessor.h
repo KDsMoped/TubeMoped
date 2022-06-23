@@ -9,30 +9,23 @@ namespace TubeMoped
     class ClippingStageProcessor
     {
     public:
-        ClippingStageProcessor(float samplerate)
+        ClippingStageProcessor(float samplerate, int blocksize, int channels)
         : samplerate_(samplerate)
         {
-            for(auto c = size_t(0); c < 2; ++c)
-            {
-                highpassFilters_.push_back(std::make_unique<kdsp::BiquadFilterDF2<float>>(2));
-                lowpassFilters_.push_back(std::make_unique<kdsp::BiquadFilterDF2<float>>(2));
-            }
+            highpass_.prepare(juce::dsp::ProcessSpec{samplerate_, static_cast<unsigned int>(blocksize), static_cast<unsigned int>(channels)});
+            highpass_.setType(juce::dsp::FirstOrderTPTFilterType::highpass);
+            lowpass_.prepare(juce::dsp::ProcessSpec{samplerate_, static_cast<unsigned int>(blocksize), static_cast<unsigned int>(channels)});
+            lowpass_.setType(juce::dsp::FirstOrderTPTFilterType::lowpass);
         }
 
         void process(juce::AudioBuffer<float>& buffer, float distortion)
         {
             auto distortionRes = 500000.f * distortion;
 
-            for(auto& hpf : highpassFilters_)
-            {
-                hpf->calcFilterCoeffs(kdsp::ZoelzerHighpass, samplerate_, 720.f, 0.707f);
-            }
+            highpass_.setCutoffFrequency(720.f);
 
             auto f = 1.f / (juce::MathConstants<float>::twoPi * (51000.f + distortionRes) * 51.f * std::powf(10.f, -12.f));
-            for(auto& lpf : lowpassFilters_)
-            {
-                lpf->calcFilterCoeffs(kdsp::ZoelzerLowpass, samplerate_, f, 0.707f);
-            }
+            lowpass_.setCutoffFrequency(juce::jmin(f, 0.5f * samplerate_));
 
             auto opampGain = 1 + ((51000.f + distortionRes) / 4700.f);
 
@@ -40,6 +33,10 @@ namespace TubeMoped
 
             clipSignal(buffer);
 
+            auto audioBlock = juce::dsp::AudioBlock<float>(buffer);
+            auto context = juce::dsp::ProcessContextReplacing<float>(audioBlock);
+            highpass_.process(context);
+            lowpass_.process(context);
         }
 
     private:
@@ -52,17 +49,15 @@ namespace TubeMoped
                 {
                     float sample = channelBuffer[s];
                     float clipped = juce::jmax<float>(juce::jmin<float>(sample, 1.f), -1);
-                    float hpFiltered = highpassFilters_[c]->process(clipped);
-                    float lpFiltered = lowpassFilters_[c]->process(hpFiltered);
-                    channelBuffer[s] = lpFiltered;
+                    channelBuffer[s] = clipped;
                 }
             }
         }
 
         float samplerate_;
 
-        std::vector<std::unique_ptr<kdsp::BiquadFilterDF2<float>>> highpassFilters_;
-        std::vector<std::unique_ptr<kdsp::BiquadFilterDF2<float>>> lowpassFilters_;
+        juce::dsp::FirstOrderTPTFilter<float> highpass_;
+        juce::dsp::FirstOrderTPTFilter<float> lowpass_;
 
     };
 }
