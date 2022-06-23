@@ -66,13 +66,13 @@ namespace TubeMoped
         auto distValue = apvts_.getParameter("Distortion")->getValue();
         clippingStageProcessor_->process(buffer, distValue);
 
-        buffer.applyGain(.2f);
-
         lowpass_.setCutoffFrequency(723.4f);
 
         auto audioBlock = juce::dsp::AudioBlock<float>(buffer);
         auto context = juce::dsp::ProcessContextReplacing<float>(audioBlock);
         lowpass_.process(context);
+
+        buffer.applyGain(.2f);
     }
 
     bool Processor::hasEditor() const
