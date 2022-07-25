@@ -11,8 +11,14 @@ namespace TubeMoped
 
         ~MainComponent() override = default;
 
+        void resized() override;
     private:
         juce::AudioProcessorValueTreeState& audioProcessorValueTreeState_;
-        //juce::AudioProcessorValueTreeState::SliderAttachment frequencySliderAttachment_;
+        
+        juce::Slider distortionKnob_;
+        juce::AudioProcessorValueTreeState::SliderAttachment distortionKnobAttachment_;
+
+        juce::Slider toneKnob_;
+        juce::AudioProcessorValueTreeState::SliderAttachment toneKnobAttachment_;
     };
 }
