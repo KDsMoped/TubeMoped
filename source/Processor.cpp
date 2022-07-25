@@ -39,9 +39,7 @@ namespace TubeMoped
     void Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
     {
         clippingStageProcessor_ = std::make_unique<ClippingStageProcessor>(sampleRate, samplesPerBlock, getNumInputChannels());
-
-        lowpass_.prepare(juce::dsp::ProcessSpec{sampleRate, static_cast<unsigned int>(samplesPerBlock), static_cast<unsigned int>(getNumInputChannels())});
-        lowpass_.setType(juce::dsp::FirstOrderTPTFilterType::lowpass);
+        toneStageProcessor_ = std::make_unique<ToneStageProcessor>(sampleRate, samplesPerBlock, getNumInputChannels())
     }
 
     void Processor::releaseResources()
@@ -66,11 +64,7 @@ namespace TubeMoped
         auto distValue = apvts_.getParameter("Distortion")->getValue();
         clippingStageProcessor_->process(buffer, distValue);
 
-        lowpass_.setCutoffFrequency(723.4f);
-
-        auto audioBlock = juce::dsp::AudioBlock<float>(buffer);
-        auto context = juce::dsp::ProcessContextReplacing<float>(audioBlock);
-        lowpass_.process(context);
+        toneStageProcessor_->process(buffer, 0.f);
 
         buffer.applyGain(.2f);
     }

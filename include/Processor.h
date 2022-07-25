@@ -5,6 +5,7 @@
 #include <juce_dsp/juce_dsp.h>
 
 #include "ClippingStageProcessor.h"
+#include "ToneStageProcessor.h"
 
 namespace TubeMoped
 {
@@ -39,8 +40,7 @@ namespace TubeMoped
         juce::AudioProcessorValueTreeState apvts_;
 
         std::unique_ptr<ClippingStageProcessor> clippingStageProcessor_;
-
-        juce::dsp::FirstOrderTPTFilter<float> lowpass_;
+        std::unique_ptr<ToneStageProcessor> toneStageProcessor_;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Processor)
     };
