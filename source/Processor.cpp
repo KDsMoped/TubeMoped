@@ -11,7 +11,7 @@ namespace TubeMoped
             auto layout = juce::AudioProcessorValueTreeState::ParameterLayout();
             layout.add(std::make_unique<juce::AudioParameterInt>("Distortion", "Distortion", 0, 100, 50));
             layout.add(std::make_unique<juce::AudioParameterFloat>("Tone", "Tone", 0.f, 1.f, 0.5f));
-            layout.add(std::make_unique<juce::AudioParameterInt>("Level", "Level", 0, 100, 50));
+            layout.add(std::make_unique<juce::AudioParameterFloat>("Level", "Level", 0.f, 1.f, 0.5f));
             return layout;
         }
     }
@@ -69,7 +69,7 @@ namespace TubeMoped
         auto toneValue = apvts_.getParameter("Tone")->getValue();
         toneStageProcessor_->process(buffer, toneValue);
 
-        buffer.applyGain(.2f);
+        buffer.applyGain(apvts_.getParameter("Level")->getValue());
     }
 
     bool Processor::hasEditor() const
