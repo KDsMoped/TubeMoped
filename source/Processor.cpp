@@ -9,7 +9,9 @@ namespace TubeMoped
         juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
         {
             auto layout = juce::AudioProcessorValueTreeState::ParameterLayout();
-            layout.add(std::make_unique<juce::AudioParameterInt>("Distortion", "Distortion", 0, 100, 0));
+            layout.add(std::make_unique<juce::AudioParameterInt>("Distortion", "Distortion", 0, 100, 50));
+            layout.add(std::make_unique<juce::AudioParameterFloat>("Tone", "Tone", 0.f, 1.f, 0.5f));
+            layout.add(std::make_unique<juce::AudioParameterInt>("Level", "Level", 0, 100, 50));
             return layout;
         }
     }
@@ -39,7 +41,7 @@ namespace TubeMoped
     void Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
     {
         clippingStageProcessor_ = std::make_unique<ClippingStageProcessor>(sampleRate, samplesPerBlock, getNumInputChannels());
-        toneStageProcessor_ = std::make_unique<ToneStageProcessor>(sampleRate, samplesPerBlock, getNumInputChannels())
+        toneStageProcessor_ = std::make_unique<ToneStageProcessor>(sampleRate, samplesPerBlock, getNumInputChannels());
     }
 
     void Processor::releaseResources()
@@ -63,8 +65,9 @@ namespace TubeMoped
     {
         auto distValue = apvts_.getParameter("Distortion")->getValue();
         clippingStageProcessor_->process(buffer, distValue);
-
-        toneStageProcessor_->process(buffer, 0.f);
+        
+        auto toneValue = apvts_.getParameter("Tone")->getValue();
+        toneStageProcessor_->process(buffer, toneValue);
 
         buffer.applyGain(.2f);
     }

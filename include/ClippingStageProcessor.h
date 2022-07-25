@@ -25,7 +25,7 @@ namespace TubeMoped
             highpass_.setCutoffFrequency(720.f);
 
             auto f = 1.f / (juce::MathConstants<float>::twoPi * (51000.f + distortionRes) * 51.f * std::powf(10.f, -12.f));
-            lowpass_.setCutoffFrequency(juce::jmin(f, 0.5f * samplerate_));
+            lowpass_.setCutoffFrequency(juce::jmin(f, 0.5f * (samplerate_ - 1.f)));
 
             auto opampGain = 1 + ((51000.f + distortionRes) / 4700.f);
 
